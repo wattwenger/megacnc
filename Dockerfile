@@ -36,7 +36,7 @@ CMD ["gunicorn", "--bind", "0.0.0.0:8000", "dashboard.wsgi:application"]
 
 
 # Use an official Python runtime as a parent image
-3FROM python:3.11
+#3FROM python:3.11
 
 # Set environment variables
 #ENV PYTHONDONTWRITEBYTECODE 1
