@@ -1,41 +1,40 @@
+# Django imports
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Prefetch
-from .models import Projects, Device, Slot, Cells, CellTestData, PrinterSettings, Batteries
+from django.db.models import Prefetch, Count, F
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponseRedirect
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
-from .functions import scan_for_devices, add_new_cell, draw_dual_label, gather_label_data, draw_square_label, \
-    draw_landscape_label, generate_uuid_for_cell, gather_label_cell_data, generate_battery_uuid
-from datetime import timedelta
-import json
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count
-from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
-
-
 from django.utils import timezone
-from django.db.models import F
-from mccprolib.api import MegacellCharger
-from megacellcnc.tasks import dispatch_command, get_device_config, save_device_config
-import msgpack
-import re
-import pandas as pd
-import datetime
-import pytz
 
+# Local imports
+from .models import Projects, Device, Slot, Cells, CellTestData, PrinterSettings, Batteries
+from .functions import (
+    scan_for_devices, add_new_cell, draw_dual_label, gather_label_data, draw_square_label,
+    draw_landscape_label, generate_uuid_for_cell, gather_label_cell_data, generate_battery_uuid
+)
+from .tasks import dispatch_command, get_device_config, save_device_config
+from mccprolib.api import MegacellCharger
+
+# Python standard library imports
+import json
+import re
+from datetime import timedelta
+
+# Third-party imports
+import msgpack
+import pandas as pd
+import pytz
 import warnings
 
-# Ignore all warnings
+# Ignore warnings
 warnings.filterwarnings('ignore')
-
-# To specifically ignore Pandas warnings, you can do:
 warnings.filterwarnings('ignore', category=pd.errors.PerformanceWarning)
 
-
+logger = logging.getLogger(__name__)
 def index(request):
     devices = Device.objects.all().order_by('id')
     devices_count = Device.objects.count()  # A small optimization to avoid querying all then counting
@@ -338,6 +337,18 @@ def batteries(request):
     return render(request, 'megacellcnc/batteries.html', context)
 
 
+
+# ... (previous code remains unchanged)
+def delete_project(request, project_id):
+    if request.method == 'POST':
+        project = get_object_or_404(Projects, pk=project_id)
+        project.delete()
+        messages.success(request, 'Project deleted successfully!')
+        return redirect('megacellcnc:project')
+    return redirect('megacellcnc:project')
+
+# ... (rest of the code remains unchanged)
+
 def add_battery(request):
     if request.method == 'POST':
         battery_name = request.POST['battery_name']
@@ -347,7 +358,6 @@ def add_battery(request):
         print("I got add battery request %s "% battery_name)
 
         new_battery = Batteries(
-
             name=battery_name,
             UUID=uuid,
             series=series,
@@ -356,7 +366,6 @@ def add_battery(request):
             capacity=0,
             status="Created",
             available="Yes"
-
         )
 
         new_battery.save()
@@ -408,7 +417,7 @@ def save_battery_configuration(request):
 def device_slots(request):
     dev_id = request.GET.get('dev_id')
     device = get_object_or_404(Device, id=dev_id)
-    slots = device.slots.all().order_by('slot_number')
+    slots = device.slots.all().order_by('slot_number')git statusgit status
     slots_count = device.slots.all().count()
     context = {
         "page_title": "Device",
@@ -423,7 +432,9 @@ def device_slots(request):
 @require_POST
 @csrf_exempt
 def handle_device_action(request):
-
+    """
+    Handle device actions such as charge, discharge, etc.
+    """
     action_map = {
         "charge": "ach",
         "discharge": "adc",
@@ -435,18 +446,40 @@ def handle_device_action(request):
         "macro": "mCap"
     }
 
-    data = json.loads(request.body)
-    action = data.get('action')
-    slots_number = data.get('slots_number')
-    cell_map = [int(x) - 1 for x in slots_number]
-
-    deviceId = data.get('deviceId')
-
     try:
-        device = Device.objects.get(id=deviceId)
-    # Now you can use 'device' object for further operations
+        data = json.loads(request.body)
+        action = data.get('action')
+        slots_number = data.get('slots_number')
+        device_id = data.get('deviceId')
+
+        device = Device.objects.get(id=device_id)
+        
+        cell_map = [int(x) - 1 for x in slots_number]
+        cells = []
+
+        for cell in cell_map:
+            if device.type == "MCC" and action == "macro":
+                cells.append({"CiD": cell, "CmD": "act"})
+            else:
+                cells.append({"CiD": cell, "CmD": action_map.get(action, action)})
+
+        request_data = {"cells": cells}
+        
+        action_type = "macro" if "macro" in action and device.type in ["MCCPro", "MCCReg"] else "regular"
+
+        dispatch_command.delay(data, request_data, action_type)
+
+        return JsonResponse({'message': f'{action.capitalize()} action submitted for selected devices.'})
+
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON received")
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except Device.DoesNotExist:
-        return "Fail"
+        logger.error(f"Device with id {device_id} does not exist")
+        return JsonResponse({'error': 'Device not found'}, status=404)
+    except Exception as e:
+        logger.exception("Unexpected error in handle_device_action")
+        return JsonResponse({'error': 'An unexpected error occurred'}, status=500)
 
 
 
@@ -471,16 +504,9 @@ def delete_project(request, project_id):
         project = get_object_or_404(Projects, pk=project_id)
         project.delete()
         messages.success(request, 'Project deleted successfully!')
-        return redirect('megacellcnc:project')
     return redirect('megacellcnc:project')
 
-def delete_project(request, project_id):
-    if request.method == 'POST':
-        project = get_object_or_404(Projects, pk=project_id)
-        project.delete()
-        messages.success(request, 'Project deleted successfully!')
-        return redirect('megacellcnc:project')
-    return redirect('megacellcnc:project')
+def handle_device_action(request):
 
     if "macro" in action and (device.type == "MCCPro" or device.type == "MCCReg"):
         action_type = "macro"
@@ -490,6 +516,7 @@ def delete_project(request, project_id):
     dispatch_command.delay(data, request_data, action_type)
 
     return JsonResponse({'message': f'{action.capitalize()} action submitted for selected devices.'})
+
 
 
 def get_updated_slots(request, device_id):
@@ -606,8 +633,7 @@ def delete_devices(request):
     # Handle other HTTP methods or return an error response
 
 
-def new_device(request):
-
+def new_project(request):  # Renamed from new_device to new_project
     if request.method == 'POST':
         project_name = request.POST.get('project_name')
         cell_type = request.POST.get('cell_type')
@@ -615,17 +641,12 @@ def new_device(request):
 
         new_project = Projects(Name=project_name, CellType=cell_type, Notes=notes, LastCellNumber=0, Status="Active", TotalCells=0)
         new_project.save()
-        # Optionally, add a message to display on the next page
         print(project_name, cell_type, notes)
         messages.success(request, 'Project created successfully!')
-        # # Redirect to a new URL or render the same template with context
         return redirect('/index/')
     else:
-        # If it's a GET request, just render your form template
-        context={
-            "page_title":"New Project"
-        }
-        return render(request,'megacellcnc/forms/new-device.html',context)
+        # Handle GET request or render a form
+        return render(request, 'your_template.html')  # Replace with your actual template
 
 
 def edit_device(request):

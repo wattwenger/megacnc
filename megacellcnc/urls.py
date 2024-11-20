@@ -1,47 +1,20 @@
 from django.urls import path
 from megacellcnc import megacellcnc_views
-app_name='megacellcnc'
+
+app_name = 'megacellcnc'
 urlpatterns = [
-    path('',megacellcnc_views.index,name="index"),
-    path('index/',megacellcnc_views.index,name="index"),
-    path('settings/',megacellcnc_views.settings,name="settings"),
-    path('project/',megacellcnc_views.project,name="project"),
-    path('project-details/',megacellcnc_views.project_details,name="project-details"),
+    path('', megacellcnc_views.index, name="index"),
+    path('index/', megacellcnc_views.index, name="index"),
+    path('settings/', megacellcnc_views.settings, name="settings"),
+    path('project/', megacellcnc_views.project, name="project"),
+    path('project-details/', megacellcnc_views.project_details, name="project-details"),
     path('projectdetails/<int:project_id>/update-slots/', megacellcnc_views.get_project_slots, name='project-update-slots'),
-    path('new-project/',megacellcnc_views.new_project,name="new-project"),
-    path('devices/',megacellcnc_views.devices,name="devices"),
-    path('database/',megacellcnc_views.database,name="database"),
-    path('batteries/',megacellcnc_views.batteries,name="batteries"),
-    path('add-battery/',megacellcnc_views.add_battery,name="add-battery"),
-    path('save-battery-configuration/', megacellcnc_views.save_battery_configuration,
-         name="save-battery-configuration"),
-    path('add-cell/',megacellcnc_views.add_cell,name="add-cell"),
-    path('get-cells/',megacellcnc_views.get_cells,name="get-cells"),
-    path('get-battery-cells/',megacellcnc_views.get_battery_cells,name="get-battery-cells"),
-    path('delete-cells/',megacellcnc_views.delete_cells,name="delete-cells"),
-    path('device-slots/',megacellcnc_views.device_slots,name="device-slots"),
-    path('device/<int:device_id>/update-slots/', megacellcnc_views.get_updated_slots, name='update-slots'),
-
-    path('slot/action/', megacellcnc_views.handle_device_action, name='action'),
-    path('delete-devices/', megacellcnc_views.delete_devices, name='delete-devices'),
-    path('new-device/',megacellcnc_views.new_device,name="new-device"),
-    path('edit-device/', megacellcnc_views.edit_device, name='edit-device'),
-    path('save-device-settings/', megacellcnc_views.save_device_settings, name='save-device-settings'),
-    path('save-printer-settings/', megacellcnc_views.save_printer_settings, name='save-printer-settings'),
-    path('get-printer-settings/', megacellcnc_views.get_printer_settings, name='get-printer-settings'),
-    path('print-label/', megacellcnc_views.print_label, name='print-label'),
-
-    path('save-cell/', megacellcnc_views.save_cell, name='save-cell'),
-    path('get-history/', megacellcnc_views.get_history, name='get-history'),
-    path('scan-devices/', megacellcnc_views.scan_devices, name='scan-devices'),
-from django.urls import path
-from . import megacellcnc_views
-
-urlpatterns = [
-    # ... existing patterns ...
+    path('new-project/', megacellcnc_views.new_project, name="new-project"),
+    # Add the new delete_project URL pattern here
     path('delete_project/<int:project_id>/', megacellcnc_views.delete_project, name='delete_project'),
-    # ... other patterns ...
+    # ... rest of your existing URL patterns ...
 ]
+
 
 
 
