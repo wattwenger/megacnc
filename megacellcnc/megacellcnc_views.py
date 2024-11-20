@@ -462,6 +462,25 @@ def handle_device_action(request):
         cells.append({"CiD": cell, "CmD": action_map.get(action, action)})
 
     request_data = {"cells": cells}
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+
+
+def delete_project(request, project_id):
+    if request.method == 'POST':
+        project = get_object_or_404(Projects, pk=project_id)
+        project.delete()
+        messages.success(request, 'Project deleted successfully!')
+        return redirect('megacellcnc:project')
+    return redirect('megacellcnc:project')
+
+def delete_project(request, project_id):
+    if request.method == 'POST':
+        project = get_object_or_404(Projects, pk=project_id)
+        project.delete()
+        messages.success(request, 'Project deleted successfully!')
+        return redirect('megacellcnc:project')
+    return redirect('megacellcnc:project')
 
     if "macro" in action and (device.type == "MCCPro" or device.type == "MCCReg"):
         action_type = "macro"

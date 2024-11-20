@@ -34,6 +34,14 @@ urlpatterns = [
     path('save-cell/', megacellcnc_views.save_cell, name='save-cell'),
     path('get-history/', megacellcnc_views.get_history, name='get-history'),
     path('scan-devices/', megacellcnc_views.scan_devices, name='scan-devices'),
+from django.urls import path
+from . import megacellcnc_views
+
+urlpatterns = [
+    # ... existing patterns ...
+    path('delete_project/<int:project_id>/', megacellcnc_views.delete_project, name='delete_project'),
+    # ... other patterns ...
+]
 
 
 
@@ -146,5 +154,6 @@ urlpatterns = [
     path('page-error-404/',megacellcnc_views.page_error_404,name="page-error-404"),
     path('page-error-500/',megacellcnc_views.page_error_500,name="page-error-500"),
     path('page-error-503/',megacellcnc_views.page_error_503,name="page-error-503"),
+
 
 ]
