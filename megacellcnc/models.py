@@ -3,6 +3,8 @@ from django.utils import timezone
 
 
 class Projects(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
     Name = models.CharField(max_length=150)
     CreationDate = models.DateTimeField(default=timezone.now)
     CellType = models.CharField(max_length=150)
