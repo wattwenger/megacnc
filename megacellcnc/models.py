@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-
+from megacellcnc.models import Projects
 
 class Projects(models.Model):
     name = models.CharField(max_length=100)
