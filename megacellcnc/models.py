@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-from megacellcnc.models import Projects
 
 class Projects(models.Model):
     name = models.CharField(max_length=100)
@@ -16,6 +15,12 @@ class Projects(models.Model):
 
     def __str__(self):
         return self.Name
+
+    def update_total_cells(self):
+        self.TotalCells = self.cells.count()
+        self.save()
+
+# ... rest of your models ...
 
     def update_total_cells(self):
         self.TotalCells = self.cells.count()
