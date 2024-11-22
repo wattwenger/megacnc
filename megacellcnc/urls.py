@@ -1,7 +1,7 @@
 from django.urls import path
 from megacellcnc import megacellcnc_views
-from django.shortcuts import get_object_or_404, redirect
-from megacellcnc.models import Project  # Ensure this import is correct
+#from django.shortcuts import get_object_or_404, redirect
+#from megacellcnc.models import Project  # Ensure this import is correct
 
 def delete_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
