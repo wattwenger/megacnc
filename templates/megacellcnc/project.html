@@ -79,7 +79,7 @@
                                     <td>{{ project.Status }}</td>
                                     <td>{{ project.TotalCells }}</td>
                                     <td>
-                                        <button class="btn btn-danger delete-project-btn" data-project-id="{{ project.id }}">Delete</button>
+                                        <a href="{% url 'megacellcnc:delete-project' project.id %}" class="btn btn-danger">Delete</a>
                                     </td>
                                 </tr>
                                 {% endfor %}

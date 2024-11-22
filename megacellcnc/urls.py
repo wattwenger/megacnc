@@ -1,5 +1,13 @@
 from django.urls import path
 from megacellcnc import megacellcnc_views
+from django.shortcuts import get_object_or_404, redirect
+from .models import Project
+
+def delete_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    project.delete()
+    return redirect('megacellcnc:project')
+
 app_name='megacellcnc'
 urlpatterns = [
     path('',megacellcnc_views.index,name="index"),
