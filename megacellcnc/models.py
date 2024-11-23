@@ -45,6 +45,7 @@ class Cells(models.Model):
     project = models.ForeignKey(Projects, on_delete=models.CASCADE, related_name='cells')
     battery = models.ForeignKey('Batteries', on_delete=models.SET_NULL, null=True, blank=True, related_name='battery_cells')
     UUID = models.CharField(max_length=150)
+    name = models.CharField(max_length=100)
     cell_type = models.CharField(max_length=150)
     device_ip = models.GenericIPAddressField()
     device_mac = models.CharField(max_length=150)
