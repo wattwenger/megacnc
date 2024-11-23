@@ -351,7 +351,6 @@
 
 {% block additional_js %}
 
-
 <script>
     jQuery(document).ready(function(){
 
@@ -374,8 +373,6 @@
             tapToDismiss: !1
         };
 
-
-
         {% if messages %}
         {% for message in messages %}
         // Check the message level and call the appropriate Toastr function
@@ -392,42 +389,45 @@
         {% endif %}
         {% endfor %}
         {% endif %}
-    });
-</script>
 
-<script>
-$(document).ready(function() {
-    $('#add_cell_form').on('submit', function(e) {
-        e.preventDefault();  // Prevent the default form submission
-
-        var formData = $(this).serialize();  // Serialize the form data.
-        var csrftoken = getCookie('csrftoken');  // Get CSRF token from cookies
-
-        $.ajax({
-            type: 'POST',
-            url: '/add-cell/',  // The URL to the server endpoint
-            data: formData,
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);  // Set the CSRF token in the request header
-            },
-            success: function(response) {
-                // Handle success: maybe clear the form or display a success message.
-                console.log('Success:', response);
-                //alert('Cell added successfully!');
-                toastr.success(response.message, "Success");
-                //$('#add_cell_form')[0].reset();  // Optionally reset the form.
-            },
-            error: function(xhr, status, error) {
-                // Handle errors
-                console.error('Error:', error);
-                //alert('Error adding cell!');
-                toastr.error("Error adding cell!", "Error");
-            }
+        // AJAX call for deleting cells
+        $('.delete-cell').click(function() {
+            var cellId = $(this).data('cell-id');
+            $.ajax({
+                url: '/delete_cell/' + cellId + '/',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    toastr.success('Cell deleted successfully.');
+                    location.reload();
+                },
+                error: function(response) {
+                    toastr.error('Failed to delete cell.');
+                }
+            });
         });
+
+        // AJAX call for deleting projects
+        $('.delete-project').click(function() {
+            var projectId = $(this).data('project-id');
+            $.ajax({
+                url: '/delete_project/' + projectId + '/',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    toastr.success('Project and its database deleted successfully.');
+                    window.location.href = '/projects_list/';
+                },
+                error: function(response) {
+                    toastr.error('Failed to delete project.');
+                }
+            });
+        });
+
     });
-});
 </script>
-
-
 {% endblock %}
-
