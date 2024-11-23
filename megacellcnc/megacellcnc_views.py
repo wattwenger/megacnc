@@ -13,10 +13,6 @@ import json
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
-from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
-
-
 from django.utils import timezone
 from django.db.models import F
 from mccprolib.api import MegacellCharger
@@ -26,7 +22,6 @@ import re
 import pandas as pd
 import datetime
 import pytz
-
 import warnings
 
 # Ignore all warnings
@@ -260,11 +255,7 @@ def delete_cells(request):
         elif len(cell_ids) > 1:
             messages.success(request, '%s Cells removed successfully!' % len(cell_ids))
 
-        # Device.objects.filter(id__in=device_ids).delete()
-        # Redirect to a success page or back to the device list
         return JsonResponse({'message': f'Successfully deleted {len(cell_ids)} cells.'})
-        # return HttpResponseRedirect(reverse('devices'))
-    # Handle other HTTP methods or return an error response
 
 
 def get_cells(request):
@@ -1620,10 +1611,6 @@ def table_datatable_basic(request):
     return render(request,'megacellcnc/table/table-datatable-basic.html',context)
 
 
-
-
-
-
 def page_register(request):
     return render(request,'megacellcnc/pages/page-register.html')
 
@@ -1643,23 +1630,26 @@ def page_empty(request):
     return render(request,'megacellcnc/pages/page-empty.html',context)
 
 def page_error_400(request):
-    return render(request,'400.html')
-    
+    return render(request, '400.html')
+
 def page_error_403(request):
-    return render(request,'403.html')
+    return render(request, '403.html')
 
 def page_error_404(request):
-    return render(request,'404.html')
+    return render(request, '404.html')
 
 def page_error_500(request):
-    return render(request,'500.html')
+    return render(request, '500.html')
 
 def page_error_503(request):
-    return render(request,'503.html')
+    return render(request, '503.html')
 
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
+from django.contrib import messages
+import json
+from .models import Projects, Cells
 
 @require_POST
 def delete_project(request):
@@ -1672,18 +1662,29 @@ def delete_project(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-from .models import Cell, Project
-
 def delete_cell(request, cell_id):
-    cell = get_object_or_404(Cell, id=cell_id)
+    cell = get_object_or_404(Cells, id=cell_id)
     cell.delete()
     messages.success(request, 'Cell deleted successfully.')
     return redirect('project_detail', project_id=cell.project.id)
 
-def delete_project(request, project_id):
-    project = get_object_or_404(Project, id=project_id)
-    project.delete()
-    messages.success(request, 'Project and its database deleted successfully.')
-    return redirect('projects_list')
+def delete_cells(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            cell_ids = data.get('cell_ids')
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        if len(cell_ids) > 0:
+            count, _ = Cells.objects.filter(id__in=cell_ids).delete()
+        else:
+            messages.error(request, 'No Cell Selected')
+            return JsonResponse({'error': 'No Cell selected'}, status=400)
+
+        if len(cell_ids) == 1:
+            messages.success(request, '%s Cell removed successfully!' % len(cell_ids))
+        elif len(cell_ids) > 1:
+            messages.success(request, '%s Cells removed successfully!' % len(cell_ids))
+
+        return JsonResponse({'message': f'Successfully deleted {len(cell_ids)} cells.'})
