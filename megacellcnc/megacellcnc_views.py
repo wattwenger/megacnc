@@ -1671,3 +1671,19 @@ def delete_project(request):
         return JsonResponse({'message': 'Project deleted successfully!'})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import Cell, Project
+
+def delete_cell(request, cell_id):
+    cell = get_object_or_404(Cell, id=cell_id)
+    cell.delete()
+    messages.success(request, 'Cell deleted successfully.')
+    return redirect('project_detail', project_id=cell.project.id)
+
+def delete_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    project.delete()
+    messages.success(request, 'Project and its database deleted successfully.')
+    return redirect('projects_list')

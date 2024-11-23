@@ -1,5 +1,6 @@
 from django.urls import path
-from megacellcnc import megacellcnc_views
+from . import megacellcnc_views
+
 app_name='megacellcnc'
 urlpatterns = [
     path('',megacellcnc_views.index,name="index"),
