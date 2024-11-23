@@ -16,8 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from megacellcnc import megacellcnc_views
 
+app_name = 'megacellcnc'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('megacellcnc.urls', namespace='megacellcnc')),
+    path('delete-project/', megacellcnc_views.delete_project, name='delete-project'),
 ]

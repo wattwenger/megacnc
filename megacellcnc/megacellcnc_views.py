@@ -1657,16 +1657,17 @@ def page_error_500(request):
 def page_error_503(request):
     return render(request,'503.html')
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404
 
-
-
-
-
-
-
-
-
-
-
-
-
+@require_POST
+def delete_project(request):
+    try:
+        data = json.loads(request.body)
+        project_id = data.get('project_id')
+        project = get_object_or_404(Projects, id=project_id)
+        project.delete()
+        return JsonResponse({'message': 'Project deleted successfully!'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)

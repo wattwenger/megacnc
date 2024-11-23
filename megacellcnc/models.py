@@ -1,8 +1,9 @@
 from django.db import models
 from django.utils import timezone
 
-
 class Projects(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
     Name = models.CharField(max_length=150)
     CreationDate = models.DateTimeField(default=timezone.now)
     CellType = models.CharField(max_length=150)
@@ -14,6 +15,12 @@ class Projects(models.Model):
 
     def __str__(self):
         return self.Name
+
+    def update_total_cells(self):
+        self.TotalCells = self.cells.count()
+        self.save()
+
+# ... rest of your models ...
 
     def update_total_cells(self):
         self.TotalCells = self.cells.count()
