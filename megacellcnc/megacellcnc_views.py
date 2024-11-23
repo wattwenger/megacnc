@@ -3,7 +3,7 @@ from django.db.models import Prefetch
 from .models import Projects, Device, Slot, Cells, CellTestData, PrinterSettings, Batteries
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponseRedirect
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from .functions import scan_for_devices, add_new_cell, draw_dual_label, gather_label_data, draw_square_label, \
@@ -29,8 +29,6 @@ warnings.filterwarnings('ignore')
 
 # To specifically ignore Pandas warnings, you can do:
 warnings.filterwarnings('ignore', category=pd.errors.PerformanceWarning)
-
-
 def index(request):
     devices = Device.objects.all().order_by('id')
     devices_count = Device.objects.count()  # A small optimization to avoid querying all then counting
