@@ -135,7 +135,7 @@ urlpatterns = [
 
     path('table-bootstrap-basic/',megacellcnc_views.table_bootstrap_basic,name="table-bootstrap-basic"),
     path('table-datatable-basic/',megacellcnc_views.table_datatable_basic,name="table-datatable-basic"),
-    path('delete_cell/<int:cell_id>/',megacellcnc_views.delete_cell, name='delete_cell'),
+    path('delete_cells/<int:cell_id>/',megacellcnc_views.delete_cells, name='delete_cells'),
     path('delete_project/<int:project_id>/',megacellcnc_views.delete_project, name='delete_project'),
 
     path('page-login/',megacellcnc_views.page_login,name="page-login"),
