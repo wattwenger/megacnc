@@ -21,11 +21,6 @@ class Projects(models.Model):
         self.TotalCells = self.cells.count()
         self.save()
 
-    def delete(self, *args, **kwargs):
-        # Delete associated cells
-        self.cells.all().delete()
-        super().delete(*args, **kwargs)
-
 class PrinterSettings(models.Model):
     PrinterName = models.CharField(default="", max_length=150)
     PrinterHost = models.CharField(default="", max_length=150)
