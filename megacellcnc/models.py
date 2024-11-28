@@ -1,6 +1,13 @@
 from django.db import models
 from django.utils import timezone
 
+class Project(models.Model):
+    # ... other fields ...
+
+    def delete(self, *args, **kwargs):
+        # Delete associated database records here
+        # ...
+        super().delete(*args, **kwargs)
 
 class Projects(models.Model):
     Name = models.CharField(max_length=150)
@@ -19,9 +26,14 @@ class Projects(models.Model):
         self.TotalCells = self.cells.count()
         self.save()
 
+    def delete(self, *args, **kwargs):
+        # Delete associated cells
+        self.cells.all().delete()
+        super().delete(*args, **kwargs)
+
 class PrinterSettings(models.Model):
     PrinterName = models.CharField(default="", max_length=150)
-    PrinterHost = models.CharField(default="",max_length=150)
+    PrinterHost = models.CharField(default="", max_length=150)
     IsDualLabel = models.IntegerField(default=0)
     LabelWidth = models.FloatField(default=0)
     LabelHeight = models.FloatField(default=0)

@@ -1,5 +1,6 @@
 from django.urls import path
 from megacellcnc import megacellcnc_views
+from . import views
 app_name='megacellcnc'
 urlpatterns = [
     path('',megacellcnc_views.index,name="index"),
@@ -147,4 +148,5 @@ urlpatterns = [
     path('page-error-500/',megacellcnc_views.page_error_500,name="page-error-500"),
     path('page-error-503/',megacellcnc_views.page_error_503,name="page-error-503"),
 
+    path('delete_project/<int:project_id>/', megacellcnc_views.delete_project, name='delete_project'),
 ]

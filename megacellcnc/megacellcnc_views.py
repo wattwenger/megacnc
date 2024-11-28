@@ -1038,8 +1038,12 @@ def scan_devices(request):
     return render(request, 'megacellcnc/devices.html')
 
 
-
-
+def delete_project(request, project_id):
+    if request.method == 'POST':
+        project = get_object_or_404(Project, id=project_id)
+        project.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
 
 
 def employee(request):
@@ -1656,17 +1660,3 @@ def page_error_500(request):
 
 def page_error_503(request):
     return render(request,'503.html')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
