@@ -3,8 +3,6 @@ from django.utils import timezone
 
 
 class Projects(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField()
     Name = models.CharField(max_length=150)
     CreationDate = models.DateTimeField(default=timezone.now)
     CellType = models.CharField(max_length=150)
@@ -20,6 +18,11 @@ class Projects(models.Model):
     def update_total_cells(self):
         self.TotalCells = self.cells.count()
         self.save()
+
+    def delete(self, *args, **kwargs):
+        # Delete associated cells
+        self.cells.all().delete()
+        super().delete(*args, **kwargs)
 
 class PrinterSettings(models.Model):
     PrinterName = models.CharField(default="", max_length=150)
@@ -72,7 +75,7 @@ class Cells(models.Model):
 
 
     def __str__(self):
-        return self.UUID
+        return self.name
 
 
 class CellTestData(models.Model):
@@ -117,7 +120,7 @@ class Chemistry(models.Model):
     name = models.CharField(max_length=150)
     max_voltage = models.FloatField()
     min_voltage = models.FloatField()
-    store_Voltage = models.FloatField()
+    store_voltage = models.FloatField()
     max_capacity = models.IntegerField()
     chg_current = models.IntegerField()
     pre_chg_current = models.IntegerField()
