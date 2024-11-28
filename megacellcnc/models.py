@@ -1,15 +1,10 @@
 from django.db import models
 from django.utils import timezone
 
-class Project(models.Model):
-    # ... other fields ...
-
-    def delete(self, *args, **kwargs):
-        # Delete associated database records here
-        # ...
-        super().delete(*args, **kwargs)
 
 class Projects(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
     Name = models.CharField(max_length=150)
     CreationDate = models.DateTimeField(default=timezone.now)
     CellType = models.CharField(max_length=150)
@@ -50,6 +45,7 @@ class Cells(models.Model):
     project = models.ForeignKey(Projects, on_delete=models.CASCADE, related_name='cells')
     battery = models.ForeignKey('Batteries', on_delete=models.SET_NULL, null=True, blank=True, related_name='battery_cells')
     UUID = models.CharField(max_length=150)
+    name = models.CharField(max_length=100)
     cell_type = models.CharField(max_length=150)
     device_ip = models.GenericIPAddressField()
     device_mac = models.CharField(max_length=150)

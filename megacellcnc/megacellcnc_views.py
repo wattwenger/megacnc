@@ -3,7 +3,7 @@ from django.db.models import Prefetch
 from .models import Projects, Device, Slot, Cells, CellTestData, PrinterSettings, Batteries
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponseRedirect
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from .functions import scan_for_devices, add_new_cell, draw_dual_label, gather_label_data, draw_square_label, \
@@ -13,10 +13,6 @@ import json
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
-from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
-
-
 from django.utils import timezone
 from django.db.models import F
 from mccprolib.api import MegacellCharger
@@ -26,7 +22,6 @@ import re
 import pandas as pd
 import datetime
 import pytz
-
 import warnings
 
 # Ignore all warnings
@@ -34,8 +29,6 @@ warnings.filterwarnings('ignore')
 
 # To specifically ignore Pandas warnings, you can do:
 warnings.filterwarnings('ignore', category=pd.errors.PerformanceWarning)
-
-
 def index(request):
     devices = Device.objects.all().order_by('id')
     devices_count = Device.objects.count()  # A small optimization to avoid querying all then counting
@@ -260,11 +253,7 @@ def delete_cells(request):
         elif len(cell_ids) > 1:
             messages.success(request, '%s Cells removed successfully!' % len(cell_ids))
 
-        # Device.objects.filter(id__in=device_ids).delete()
-        # Redirect to a success page or back to the device list
         return JsonResponse({'message': f'Successfully deleted {len(cell_ids)} cells.'})
-        # return HttpResponseRedirect(reverse('devices'))
-    # Handle other HTTP methods or return an error response
 
 
 def get_cells(request):
@@ -1624,10 +1613,6 @@ def table_datatable_basic(request):
     return render(request,'megacellcnc/table/table-datatable-basic.html',context)
 
 
-
-
-
-
 def page_register(request):
     return render(request,'megacellcnc/pages/page-register.html')
 
@@ -1647,16 +1632,16 @@ def page_empty(request):
     return render(request,'megacellcnc/pages/page-empty.html',context)
 
 def page_error_400(request):
-    return render(request,'400.html')
-    
+    return render(request, '400.html')
+
 def page_error_403(request):
-    return render(request,'403.html')
+    return render(request, '403.html')
 
 def page_error_404(request):
-    return render(request,'404.html')
+    return render(request, '404.html')
 
 def page_error_500(request):
-    return render(request,'500.html')
+    return render(request, '500.html')
 
 def page_error_503(request):
     return render(request,'503.html')
